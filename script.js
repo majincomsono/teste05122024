@@ -1,60 +1,60 @@
-// Função para carregar os agendamentos do LocalStorage
-function loadAgendamentos() {
-    const agendamentos = JSON.parse(localStorage.getItem('agendamentos')) || [];
-    const agendaListElement = document.getElementById('agendaList');
-    agendaListElement.innerHTML = ''; // Limpa a lista antes de adicionar os novos agendamentos
-  
-    agendamentos.forEach((agendamento, index) => {
-      const li = document.createElement('li');
-      li.className = 'list-group-item';
-      li.innerHTML = `
-        <div>
-          <strong>${agendamento.nome}</strong><br>
-          <small>${agendamento.servico}</small><br>
-          <span class="text-muted">${agendamento.data}</span>
-        </div>
-        <button onclick="deleteAgendamento(${index})">Excluir</button>
-      `;
-      agendaListElement.appendChild(li);
-    });
-  }
-  
-  // Função para adicionar um novo agendamento
-  function addAgendamento() {
-    const nomeInput = document.getElementById('nome');
-    const dataInput = document.getElementById('data');
-    const servicoInput = document.getElementById('servico');
-  
-    const nome = nomeInput.value.trim();
-    const data = dataInput.value.trim();
-    const servico = servicoInput.value.trim();
-  
-    if (nome && data && servico) {
-      const novoAgendamento = { nome, data, servico };
-      const agendamentos = JSON.parse(localStorage.getItem('agendamentos')) || [];
-      agendamentos.push(novoAgendamento);
-      localStorage.setItem('agendamentos', JSON.stringify(agendamentos));
-  
-      nomeInput.value = '';
-      dataInput.value = '';
-      servicoInput.value = '';
-      loadAgendamentos(); // Atualiza a lista de agendamentos
-    } else {
-      alert('Por favor, preencha todos os campos!');
-    }
-  }
-  
-  // Função para excluir um agendamento
-  function deleteAgendamento(index) {
-    const agendamentos = JSON.parse(localStorage.getItem('agendamentos')) || [];
-    agendamentos.splice(index, 1); // Remove o agendamento pela posição
-    localStorage.setItem('agendamentos', JSON.stringify(agendamentos));
-    loadAgendamentos(); // Atualiza a lista de agendamentos
-  }
-  
-  // Evento de clique no botão de agendamento
-  document.getElementById('agendarBtn').addEventListener('click', addAgendamento);
-  
-  // Carrega os agendamentos quando a página for carregada
-  window.onload = loadAgendamentos;
-  
+// Carrega os agendamentos do LocalStorage ao iniciar a página
+document.addEventListener('DOMContentLoaded', carregarAgendamentos);
+
+document.getElementById('form-agendamento').addEventListener('submit', function(event) {
+  event.preventDefault(); // Evita o envio do formulário
+
+  // Obtém os dados do formulário
+  const nome = document.getElementById('nome').value;
+  const email = document.getElementById('email').value;
+  const dataVisita = document.getElementById('data-visita').value;
+  const endereco = document.getElementById('endereco').value;
+
+  // Cria o objeto de agendamento
+  const agendamento = {
+    nome,
+    email,
+    dataVisita,
+    endereco
+  };
+
+  // Salva o agendamento no LocalStorage
+  salvarAgendamento(agendamento);
+
+  // Limpa o formulário
+  document.getElementById('form-agendamento').reset();
+});
+
+// Função para carregar os agendamentos da LocalStorage e exibir na tabela
+function carregarAgendamentos() {
+  const agendamentos = JSON.parse(localStorage.getItem('agendamentos')) || [];
+  const tabela = document.getElementById('tabela-agendamentos').getElementsByTagName('tbody')[0];
+  tabela.innerHTML = ''; // Limpa a tabela antes de atualizar
+
+  agendamentos.forEach(function(agendamento) {
+    const row = tabela.insertRow();
+    row.innerHTML = `
+      <td>${agendamento.nome}</td>
+      <td>${agendamento.email}</td>
+      <td>${formatarData(agendamento.dataVisita)}</td>
+      <td>${agendamento.endereco}</td>
+    `;
+  });
+}
+
+// Função para salvar agendamento no LocalStorage
+function salvarAgendamento(agendamento) {
+  const agendamentos = JSON.parse(localStorage.getItem('agendamentos')) || [];
+  agendamentos.push(agendamento);
+  localStorage.setItem('agendamentos', JSON.stringify(agendamentos));
+
+  // Recarrega a tabela com os novos dados
+  carregarAgendamentos();
+}
+
+// Função para formatar a data de forma mais amigável
+function formatarData(data) {
+  const date = new Date(data);
+  const opcoes = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+  return date.toLocaleDateString('pt-BR', opcoes);
+}
